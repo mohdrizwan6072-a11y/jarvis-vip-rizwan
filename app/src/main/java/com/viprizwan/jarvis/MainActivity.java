@@ -7,17 +7,22 @@ import android.content.Intent;
 import android.net.Uri;
 import android.content.pm.PackageManager;
 import android.speech.tts.TextToSpeech;
+import android.media.AudioManager;
+import android.content.Context;
 import android.view.WindowManager;
 import java.util.Locale;
 
 public class MainActivity extends Activity {
     private WebView webView;
     private TextToSpeech tts;
+    private AudioManager audioManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
         webView = new WebView(this);
         setContentView(webView);
@@ -58,6 +63,15 @@ public class MainActivity extends Activity {
                     tts.setSpeechRate((float) rate);
                     tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "jarvis_voice");
                 }
+            }
+            @JavascriptInterface
+            public void muteBeep(boolean mute) {
+                try {
+                    if (audioManager != null) {
+                        audioManager.setStreamMute(AudioManager.STREAM_SYSTEM, mute);
+                        audioManager.setStreamMute(AudioManager.STREAM_NOTIFICATION, mute);
+                    }
+                } catch(Exception e) {}
             }
         }, "Android");
 

@@ -2,16 +2,16 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JARVIS v3.2</title>
+<title>JARVIS v3.3 Silent</title>
 <style>
-body { background: #020b14; color: #00e5ff; font-family: monospace; text-align: center; margin: 0; padding: 10px; }
-h1 { font-size: 16px; letter-spacing: 2px; text-shadow: 0 0 10px #00e5ff; margin: 3px 0; }
-#circle { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #00e5ff; margin: 10px auto; box-shadow: 0 0 20px #00e5ff; animation: pulse 2s infinite; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; }
+body { background: #020b14; color: #00e5ff; font-family: monospace; text-align: center; margin: 0; padding: 12px; }
+h1 { font-size: 16px; letter-spacing: 2px; text-shadow: 0 0 10px #00e5ff; margin: 4px 0; }
+#circle { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #00e5ff; margin: 12px auto; box-shadow: 0 0 20px #00e5ff; animation: pulse 2s infinite; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; }
 @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
-#status { font-size: 12px; margin: 5px; color: #76ff03; font-weight: bold; min-height: 18px; }
+#status { font-size: 12px; margin: 6px; color: #76ff03; font-weight: bold; min-height: 18px; }
 #reply { background: rgba(0,229,255,0.08); border: 1px solid #00e5ff; border-radius: 8px; padding: 8px; font-size: 12px; color: #fff; max-height: 90px; overflow-y: auto; text-align: left; }
 
-.btn-power { width: 90%; padding: 10px; font-size: 13px; font-weight: bold; border-radius: 20px; border: none; cursor: pointer; margin: 8px auto; display: block; }
+.btn-power { width: 90%; padding: 10px; font-size: 13px; font-weight: bold; border-radius: 20px; border: none; cursor: pointer; margin: 6px auto; display: block; }
 .p-on { background: #00e5ff; color: #020b14; box-shadow: 0 0 15px #00e5ff; }
 .p-off { background: #ff5252; color: #fff; box-shadow: 0 0 15px #ff5252; }
 
@@ -23,12 +23,12 @@ h1 { font-size: 16px; letter-spacing: 2px; text-shadow: 0 0 10px #00e5ff; margin
 </style>
 </head>
 <body>
-<h1>⚡ VIP RIZWAN AI (v3.2) ⚡</h1>
+<h1>⚡ VIP RIZWAN AI (v3.3) ⚡</h1>
 
 <button id="pBtn" class="btn-power p-on" onclick="togglePower()">🟢 ASSISTANT ON (Tap to Turn OFF)</button>
 
-<div id="circle">JARVIS<br>WAKE-WORD ONLY</div>
-<div id="status">👂 Kaan Khule Hain... Sirf "Hey Jarvis" Par Bolunga</div>
+<div id="circle">JARVIS<br>SILENT MODE</div>
+<div id="status">🤫 Shaant Hai... Sirf "Hey Jarvis" Par Bolunga</div>
 <div id="reply">Jarvis is online. Say "Hey Jarvis" or "Hey Mayra" to talk.</div>
 
 <div class="box">
@@ -107,7 +107,7 @@ function togglePower() {
     if (isPowerOn) {
         btn.innerText = "🟢 ASSISTANT ON (Tap to Turn OFF)";
         btn.className = "btn-power p-on";
-        statusDiv.innerText = "👂 Sirf 'Hey Jarvis' ya 'Hey Mayra' par bolunga";
+        statusDiv.innerText = "🤫 Shaant Hai... Sirf 'Hey Jarvis' Par Bolunga";
         startMic();
         speak("System online. Waiting for wake word.");
     } else {
@@ -147,7 +147,7 @@ async function askAI(prompt) {
             if (data && data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
                 const ans = data.candidates[0].content.parts[0].text;
                 replyDiv.innerText = ans;
-                statusDiv.innerText = "👂 Waiting for 'Hey Jarvis' / 'Hey Mayra'";
+                statusDiv.innerText = "🤫 Shaant... Sirf 'Hey Jarvis' boliye";
                 speak(ans);
                 return;
             }
@@ -160,13 +160,13 @@ async function askAI(prompt) {
 }
 
 let recognition;
-let isListening = false;
+let isRestarting = false;
 
 function startMic() {
-    if (!recognition || !isPowerOn) return;
+    if (!recognition || !isPowerOn || isRestarting) return;
     try {
+        if (window.Android && window.Android.muteBeep) { window.Android.muteBeep(true); }
         recognition.start();
-        isListening = true;
     } catch(e) {}
 }
 
@@ -188,9 +188,9 @@ if ("webkitSpeechRecognition" in window) {
         const hasJarvis = rawText.includes("jarvis") || rawText.includes("service") || rawText.includes("charvis");
         const hasMayra = rawText.includes("mayra") || rawText.includes("myra");
 
-        // AGAR WAKE-WORD NAHI BOLA, TOH BILKUL CHUP RAHO (IGNORE)
+        // AGAR WAKE-WORD NAHI BOLA, TOH BILKUL CHUP RAHO
         if (!hasJarvis && !hasMayra) {
-            statusDiv.innerText = "🤫 Background noise ignored... Say 'Hey Jarvis'";
+            statusDiv.innerText = "🤫 Ignored (Sirf 'Hey Jarvis' boliye)";
             return;
         }
 
@@ -202,17 +202,15 @@ if ("webkitSpeechRecognition" in window) {
             setPreset(0.7, 0.95, "jarvis");
         }
 
-        // Wake word ko prompt se alag karna
         let cmd = rawText
             .replace(/hey\s*jarvis/g, "")
             .replace(/jarvis/g, "")
-            .replace(/service/g/g, "")
+            .replace(/service/g, "")
             .replace(/hey\s*mayra/g, "")
             .replace(/mayra/g, "")
             .replace(/myra/g, "")
             .trim();
 
-        // Agar user ne sirf "Hey Jarvis" bola bina kisi sawal ke
         if (!cmd) {
             let ack = persona === "mayra" ? "Rizwan jaan, main sun rahi hoon boliye." : "Yes VIP Rizwan Sir, I am listening.";
             replyDiv.innerText = ack;
@@ -220,7 +218,6 @@ if ("webkitSpeechRecognition" in window) {
             return;
         }
 
-        // Agar gaana ya app command hai
         if (cmd.includes("youtube") || cmd.includes("play") || cmd.includes("gaana") || cmd.includes("song")) {
             let q = cmd.replace("youtube","").replace("play","").replace("gaana","").replace("song","").trim() || "trending songs";
             if (window.Android) { window.Android.openUrl("https://www.youtube.com/results?search_query=" + encodeURIComponent(q)); }
@@ -233,19 +230,30 @@ if ("webkitSpeechRecognition" in window) {
         }
     };
 
-    recognition.onaudiostart = function() { isListening = true; };
-    recognition.onend = function() { isListening = false; if (isPowerOn) setTimeout(startMic, 200); };
-    recognition.onerror = function() { isListening = false; if (isPowerOn) setTimeout(startMic, 500); };
+    // Clean Silent Restart without loop spam
+    recognition.onend = function() {
+        if (!isPowerOn) return;
+        isRestarting = true;
+        setTimeout(function() {
+            isRestarting = false;
+            startMic();
+        }, 1200);
+    };
+
+    recognition.onerror = function() {
+        if (!isPowerOn) return;
+        isRestarting = true;
+        setTimeout(function() {
+            isRestarting = false;
+            startMic();
+        }, 1500);
+    };
 
     startMic();
-
-    setInterval(function() {
-        if (isPowerOn && !isListening) { startMic(); }
-    }, 2000);
 }
 
 setTimeout(function() {
-    speak("Jarvis is online. Say Hey Jarvis to talk, or tap the button to turn off.");
+    speak("Jarvis is online and silent. Say Hey Jarvis to wake me up.");
 }, 1200);
 </script>
 </body>
