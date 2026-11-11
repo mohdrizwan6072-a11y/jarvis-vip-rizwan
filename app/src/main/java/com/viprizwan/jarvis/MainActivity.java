@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.content.pm.PackageManager;
 import android.speech.tts.TextToSpeech;
+import android.view.WindowManager;
 import java.util.Locale;
 
 public class MainActivity extends Activity {
@@ -16,6 +17,10 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        // Screen ko awake rakhna taaki bina touch kiye sunta rahe
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         webView = new WebView(this);
         setContentView(webView);
 
@@ -49,8 +54,10 @@ public class MainActivity extends Activity {
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
             }
             @JavascriptInterface
-            public void speakOut(String text) {
+            public void speakOut(String text, float pitch, float rate) {
                 if (tts != null) {
+                    tts.setPitch(pitch);
+                    tts.setSpeechRate(rate);
                     tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "jarvis_voice");
                 }
             }

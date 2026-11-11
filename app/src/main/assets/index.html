@@ -2,23 +2,53 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JARVIS v2.2</title>
+<title>JARVIS v3</title>
 <style>
-body { background: #020b14; color: #00e5ff; font-family: monospace; text-align: center; margin: 0; padding: 20px; }
-h1 { font-size: 18px; letter-spacing: 2px; text-shadow: 0 0 10px #00e5ff; }
-#circle { width: 130px; height: 130px; border-radius: 50%; border: 3px solid #00e5ff; margin: 25px auto; box-shadow: 0 0 25px #00e5ff; animation: pulse 2s infinite; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; cursor: pointer; }
+body { background: #020b14; color: #00e5ff; font-family: monospace; text-align: center; margin: 0; padding: 15px; }
+h1 { font-size: 18px; letter-spacing: 2px; text-shadow: 0 0 10px #00e5ff; margin: 5px 0; }
+#circle { width: 120px; height: 120px; border-radius: 50%; border: 3px solid #00e5ff; margin: 20px auto; box-shadow: 0 0 25px #00e5ff; animation: pulse 2s infinite; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; }
 @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
-#status { font-size: 13px; margin: 10px; color: #fff; min-height: 25px; }
-#reply { background: rgba(0,229,255,0.08); border: 1px solid #00e5ff; border-radius: 10px; padding: 12px; font-size: 13px; color: #76ff03; max-height: 180px; overflow-y: auto; text-align: left; }
-.btn { margin-top: 15px; background: transparent; border: 1px solid #ff5252; color: #ff5252; padding: 6px 12px; border-radius: 5px; font-size: 12px; cursor: pointer; }
+#status { font-size: 13px; margin: 8px; color: #fff; min-height: 22px; }
+#reply { background: rgba(0,229,255,0.08); border: 1px solid #00e5ff; border-radius: 8px; padding: 10px; font-size: 13px; color: #76ff03; max-height: 140px; overflow-y: auto; text-align: left; }
+.btn-row { margin-top: 10px; display: flex; justify-content: center; gap: 8px; }
+.btn { background: transparent; border: 1px solid #00e5ff; color: #00e5ff; padding: 6px 10px; border-radius: 5px; font-size: 11px; cursor: pointer; }
+.btn-red { border-color: #ff5252; color: #ff5252; }
+#modal { display: none; background: #071727; border: 2px solid #00e5ff; border-radius: 10px; padding: 15px; margin-top: 15px; text-align: left; font-size: 12px; }
+.slider-row { margin: 8px 0; display: flex; justify-content: space-between; align-items: center; }
+.slider-row input { width: 55%; }
 </style>
 </head>
 <body>
-<h1>⚡ VIP RIZWAN AI (v2.2) ⚡</h1>
-<div id="circle" onclick="toggleListen()">JARVIS<br>TAP TO TALK</div>
-<div id="status">System Ready. Tap circle to speak.</div>
-<div id="reply">Jarvis is online, VIP Rizwan Sir.</div>
-<button class="btn" onclick="resetKey()">🔑 Reset API Key</button>
+<h1>⚡ VIP RIZWAN AI (v3.0) ⚡</h1>
+<div id="circle" onclick="toggleListen()">JARVIS<br>HANDS-FREE ON</div>
+<div id="status">Listening... Say "Hey Jarvis"</div>
+<div id="reply">Jarvis is online and listening hands-free, VIP Rizwan Sir.</div>
+
+<div class="btn-row">
+  <button class="btn" onclick="toggleModal()">⚙️ Voice Settings</button>
+  <button class="btn btn-red" onclick="resetKey()">🔑 Key</button>
+</div>
+
+<div id="modal">
+  <b style="color:#fff;">Voice Tuning:</b>
+  <div class="slider-row">
+    <span>Pitch (Deep/High):</span>
+    <input type="range" id="pRange" min="0.5" max="1.6" step="0.05" onchange="updateVoice()">
+  </div>
+  <div class="slider-row">
+    <span>Speed (Slow/Fast):</span>
+    <input type="range" id="sRange" min="0.7" max="1.5" step="0.05" onchange="updateVoice()">
+  </div>
+  <div class="btn-row" style="margin-top:8px;">
+    <button class="btn" onclick="setPreset(0.75, 0.95)">🤖 Deep Jarvis</button>
+    <button class="btn" onclick="setPreset(1.35, 1.05)">👩 Mayra</button>
+    <button class="btn" onclick="setPreset(1.0, 1.1)">⚡ Normal</button>
+  </div>
+  <div class="btn-row" style="margin-top:10px;">
+    <button class="btn" onclick="testVoice()" style="background:#00e5ff;color:#000;font-weight:bold;">🔊 Test Sound</button>
+    <button class="btn btn-red" onclick="toggleModal()">Close</button>
+  </div>
+</div>
 
 <script>
 let KEY = localStorage.getItem("jarvis_gemini_key") || "";
@@ -27,13 +57,34 @@ if (!KEY) {
     if (KEY) localStorage.setItem("jarvis_gemini_key", KEY.trim());
 }
 
+let pitch = parseFloat(localStorage.getItem("j_pitch") || "0.8");
+let rate = parseFloat(localStorage.getItem("j_rate") || "0.95");
+document.getElementById("pRange").value = pitch;
+document.getElementById("sRange").value = rate;
+
+function updateVoice() {
+    pitch = parseFloat(document.getElementById("pRange").value);
+    rate = parseFloat(document.getElementById("sRange").value);
+    localStorage.setItem("j_pitch", pitch);
+    localStorage.setItem("j_rate", rate);
+}
+
+function setPreset(p, r) {
+    pitch = p; rate = r;
+    document.getElementById("pRange").value = p;
+    document.getElementById("sRange").value = r;
+    updateVoice();
+    testVoice();
+}
+
+function toggleModal() {
+    let m = document.getElementById("modal");
+    m.style.display = m.style.display === "block" ? "none" : "block";
+}
+
 function resetKey() {
     let k = prompt("Enter new Gemini API Key:", KEY);
-    if (k) {
-        localStorage.setItem("jarvis_gemini_key", k.trim());
-        KEY = k.trim();
-        alert("API Key updated!");
-    }
+    if (k) { localStorage.setItem("jarvis_gemini_key", k.trim()); KEY = k.trim(); alert("Updated!"); }
 }
 
 const statusDiv = document.getElementById("status");
@@ -42,79 +93,17 @@ const replyDiv = document.getElementById("reply");
 function speak(text) {
     let clean = text.replace(/[*#]/g, '').trim();
     if (window.Android && window.Android.speakOut) {
-        window.Android.speakOut(clean);
+        window.Andro
+cat << 'EOF' > app/build.gradle
+plugins { id "com.android.application" }
+android {
+    namespace "com.viprizwan.jarvis"
+    compileSdk 34
+    defaultConfig {
+        applicationId "com.viprizwan.jarvis"
+        minSdk 24
+        targetSdk 34
+        versionCode 5
+        versionName "3.0"
     }
 }
-
-const MODELS = ["models/gemini-3.5-flash-lite", "models/gemini-3.8-flash", "models/gemini-2.5-flash"];
-
-async function askAI(prompt) {
-    if (!KEY) {
-        replyDiv.innerText = "API Key missing. Click Reset API Key.";
-        return;
-    }
-    statusDiv.innerText = "JARVIS Thinking...";
-
-    for (let model of MODELS) {
-        try {
-            const url = `https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${KEY}`;
-            const res = await fetch(url, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: "You are JARVIS for VIP Rizwan (Sir). Loyal, brief 1-2 sentence voice reply in Roman Urdu/Hindi.\\n\\n" + prompt }] }],
-                    generationConfig: { maxOutputTokens: 150 }
-                })
-            });
-            const data = await res.json();
-            if (data && data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
-                const ans = data.candidates[0].content.parts[0].text;
-                replyDiv.innerText = ans;
-                statusDiv.innerText = "Listening for commands...";
-                speak(ans);
-                return;
-            }
-        } catch(e) {}
-    }
-    let msg = "Sir, connection issue aaya. Please Reset API Key check kijiye.";
-    replyDiv.innerText = msg;
-    speak(msg);
-    statusDiv.innerText = "Ready";
-}
-
-let recognition;
-if ("webkitSpeechRecognition" in window) {
-    recognition = new webkitSpeechRecognition();
-    recognition.continuous = true;
-    recognition.lang = "hi-IN";
-    recognition.onresult = function(e) {
-        if (!e || !e.results || e.results.length === 0) return;
-        const last = e.results[e.results.length - 1];
-        if (!last || last.length === 0 || !last[0] || !last[0].transcript) return;
-        const text = last[0].transcript.toLowerCase();
-        statusDiv.innerText = "Heard: " + text;
-        if (text.includes("youtube") || text.includes("play") || text.includes("gaana")) {
-            let q = text.replace("youtube","").replace("play","").replace("gaana","").trim() || "trending songs";
-            if (window.Android) { window.Android.openUrl("https://www.youtube.com/results?search_query=" + encodeURIComponent(q)); }
-            speak("Playing " + q + " on YouTube Sir");
-        } else if (text.includes("whatsapp")) {
-            if (window.Android) { window.Android.openUrl("whatsapp://"); }
-            speak("Opening WhatsApp Sir");
-        } else {
-            askAI(text);
-        }
-    };
-    try { recognition.start(); } catch(e){}
-}
-
-function toggleListen() {
-    try { recognition.start(); } catch(e){}
-    statusDiv.innerText = "Listening now, Sir...";
-}
-
-setTimeout(function() {
-    speak("Jarvis is online and ready, VIP Rizwan Sir.");
-}, 1200);
-</script>
-</body>
-</html>
