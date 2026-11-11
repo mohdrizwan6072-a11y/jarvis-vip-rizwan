@@ -20,6 +20,9 @@ public class MainActivity extends Activity {
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
         settings.setMediaPlaybackRequiresUserGesture(false);
+        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+
+        webView.clearCache(true);
 
         webView.setWebChromeClient(new WebChromeClient() {
             @Override

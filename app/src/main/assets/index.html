@@ -2,22 +2,22 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JARVIS</title>
+<title>JARVIS v2</title>
 <style>
 body { background: #020b14; color: #00e5ff; font-family: monospace; text-align: center; margin: 0; padding: 20px; }
-h1 { font-size: 20px; letter-spacing: 2px; text-shadow: 0 0 10px #00e5ff; margin-bottom: 5px; }
+h1 { font-size: 18px; letter-spacing: 2px; text-shadow: 0 0 10px #00e5ff; margin-bottom: 5px; }
 #circle { width: 130px; height: 130px; border-radius: 50%; border: 3px solid #00e5ff; margin: 25px auto; box-shadow: 0 0 25px #00e5ff; animation: pulse 2s infinite; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; cursor: pointer; }
 @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
-#status { font-size: 14px; margin: 10px; color: #fff; min-height: 25px; }
-#reply { background: rgba(0,229,255,0.08); border: 1px solid #00e5ff; border-radius: 10px; padding: 12px; font-size: 14px; color: #76ff03; max-height: 180px; overflow-y: auto; text-align: left; }
+#status { font-size: 13px; margin: 10px; color: #fff; min-height: 25px; }
+#reply { background: rgba(0,229,255,0.08); border: 1px solid #00e5ff; border-radius: 10px; padding: 12px; font-size: 13px; color: #76ff03; max-height: 180px; overflow-y: auto; text-align: left; }
 .btn-reset { margin-top: 15px; background: transparent; border: 1px solid #ff5252; color: #ff5252; padding: 6px 12px; border-radius: 5px; font-size: 12px; cursor: pointer; }
 </style>
 </head>
 <body>
-<h1>⚡ VIP RIZWAN AI ⚡</h1>
+<h1>⚡ VIP RIZWAN AI (v2.0) ⚡</h1>
 <div id="circle" onclick="toggleListen()">JARVIS<br>TAP TO TALK</div>
-<div id="status">System Online. Tap circle to talk.</div>
-<div id="reply">Jarvis is ready, VIP Rizwan Sir.</div>
+<div id="status">System Ready. Tap circle to speak.</div>
+<div id="reply">Jarvis is online and ready, VIP Rizwan Sir.</div>
 <button class="btn-reset" onclick="resetKey()">🔑 Reset API Key</button>
 
 <script>
@@ -40,6 +40,7 @@ const statusDiv = document.getElementById("status");
 const replyDiv = document.getElementById("reply");
 
 function speak(text) {
+    if (!window.speechSynthesis) return;
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text.replace(/[*#]/g, ''));
     u.lang = "hi-IN";
@@ -63,20 +64,20 @@ async function askAI(prompt) {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: "You are JARVIS for VIP Rizwan (Sir). Loyal, smart, brief 1-2 sentence replies in Roman Urdu/Hindi.\\n\\n" + prompt }] }],
+                    contents: [{ parts: [{ text: "You are JARVIS for VIP Rizwan (Sir). Loyal, witty, brief 1-2 sentence voice reply in Roman Urdu/Hindi.\\n\\n" + prompt }] }],
                     generationConfig: { maxOutputTokens: 150 }
                 })
             });
             const data = await res.json();
-            if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
+            if (data && data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
                 const ans = data.candidates[0].content.parts[0].text;
                 replyDiv.innerText = ans;
                 statusDiv.innerText = "Listening for commands...";
                 speak(ans);
                 answered = true;
                 break;
-            } else if (data.error) {
-                console.warn(model, data.error.message);
+            } else if (data && data.error) {
+                console.warn(data.error.message);
             }
         } catch(e) {
             console.error(e);
@@ -84,7 +85,7 @@ async function askAI(prompt) {
     }
 
     if (!answered) {
-        replyDiv.innerText = "Sir, Google server connect karne mein dikkat aayi. Please Reset Key check kijiye.";
+        replyDiv.innerText = "Sir, connection mein issue aaya. Please 'Reset API Key' par click karke apni key verify karein.";
         statusDiv.innerText = "Ready";
     }
 }
@@ -95,8 +96,13 @@ if ("webkitSpeechRecognition" in window) {
     recognition.continuous = true;
     recognition.lang = "hi-IN";
     recognition.onresult = function(e) {
-        const text = e.results[e.results.length - 1][0].transcript.toLowerCase();
+        if (!e || !e.results || e.results.length === 0) return;
+        const last = e.results[e.results.length - 1];
+        if (!last || last.length === 0 || !last[0] || !last[0].transcript) return;
+        
+        const text = last[0].transcript.toLowerCase();
         statusDiv.innerText = "Heard: " + text;
+        
         if (text.includes("youtube") || text.includes("play") || text.includes("gaana")) {
             let q = text.replace("youtube","").replace("play","").replace("gaana","").trim() || "trending songs";
             if (window.Android) { window.Android.openUrl("https://www.youtube.com/results?search_query=" + encodeURIComponent(q)); }
