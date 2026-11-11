@@ -5,48 +5,86 @@
 <title>JARVIS</title>
 <style>
 body { background: #020b14; color: #00e5ff; font-family: monospace; text-align: center; margin: 0; padding: 20px; }
-h1 { font-size: 22px; letter-spacing: 2px; text-shadow: 0 0 10px #00e5ff; }
-#circle { width: 140px; height: 140px; border-radius: 50%; border: 4px solid #00e5ff; margin: 40px auto; box-shadow: 0 0 30px #00e5ff; animation: pulse 2s infinite; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; cursor: pointer; }
+h1 { font-size: 20px; letter-spacing: 2px; text-shadow: 0 0 10px #00e5ff; margin-bottom: 5px; }
+#circle { width: 130px; height: 130px; border-radius: 50%; border: 3px solid #00e5ff; margin: 25px auto; box-shadow: 0 0 25px #00e5ff; animation: pulse 2s infinite; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; cursor: pointer; }
 @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
-#status { font-size: 15px; margin: 15px; color: #fff; min-height: 40px; }
-#reply { background: rgba(0,229,255,0.1); border: 1px solid #00e5ff; border-radius: 10px; padding: 15px; font-size: 14px; color: #76ff03; max-height: 200px; overflow-y: auto; text-align: left; }
+#status { font-size: 14px; margin: 10px; color: #fff; min-height: 25px; }
+#reply { background: rgba(0,229,255,0.08); border: 1px solid #00e5ff; border-radius: 10px; padding: 12px; font-size: 14px; color: #76ff03; max-height: 180px; overflow-y: auto; text-align: left; }
+.btn-reset { margin-top: 15px; background: transparent; border: 1px solid #ff5252; color: #ff5252; padding: 6px 12px; border-radius: 5px; font-size: 12px; cursor: pointer; }
 </style>
 </head>
 <body>
 <h1>⚡ VIP RIZWAN AI ⚡</h1>
 <div id="circle" onclick="toggleListen()">JARVIS<br>TAP TO TALK</div>
-<div id="status">System Online. Tap circle or say "Hey Jarvis"</div>
+<div id="status">System Online. Tap circle to talk.</div>
 <div id="reply">Jarvis is ready, VIP Rizwan Sir.</div>
+<button class="btn-reset" onclick="resetKey()">🔑 Reset API Key</button>
 
 <script>
-let KEY = localStorage.getItem("jarvis_gemini_key") || ""; if (!KEY) { KEY = prompt("VIP Rizwan Sir, enter Gemini API Key:") || ""; if (KEY) localStorage.setItem("jarvis_gemini_key", KEY.trim()); }
+let KEY = localStorage.getItem("jarvis_gemini_key") || "";
+if (!KEY) {
+    KEY = prompt("VIP Rizwan Sir, enter your Gemini API Key:") || "";
+    if (KEY) localStorage.setItem("jarvis_gemini_key", KEY.trim());
+}
+
+function resetKey() {
+    let k = prompt("Enter new Gemini API Key:", KEY);
+    if (k) {
+        localStorage.setItem("jarvis_gemini_key", k.trim());
+        KEY = k.trim();
+        alert("API Key updated successfully!");
+    }
+}
+
 const statusDiv = document.getElementById("status");
 const replyDiv = document.getElementById("reply");
 
 function speak(text) {
-    const u = new SpeechSynthesisUtterance(text);
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text.replace(/[*#]/g, ''));
     u.lang = "hi-IN";
-    speechSynthesis.speak(u);
+    window.speechSynthesis.speak(u);
 }
 
+const MODELS = ["models/gemini-3.5-flash-lite", "models/gemini-3.8-flash", "models/gemini-2.5-flash"];
+
 async function askAI(prompt) {
+    if (!KEY) {
+        replyDiv.innerText = "Error: API Key missing. Please click Reset API Key.";
+        return;
+    }
     statusDiv.innerText = "JARVIS Thinking...";
-    const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + KEY;
-    try {
-        const res = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: "You are JARVIS for VIP Rizwan (Sir). Witty, loyal, tech genius. Speak in Roman Urdu/Hindi. 2 sentences max.\n\n" + prompt }] }]
-            })
-        });
-        const data = await res.json();
-        const ans = data.candidates[0].content.parts[0].text;
-        replyDiv.innerText = ans;
-        statusDiv.innerText = "Listening for commands...";
-        speak(ans);
-    } catch(e) {
-        replyDiv.innerText = "Error: " + e.message;
+
+    let answered = false;
+    for (let model of MODELS) {
+        try {
+            const url = `https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${KEY}`;
+            const res = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: "You are JARVIS for VIP Rizwan (Sir). Loyal, smart, brief 1-2 sentence replies in Roman Urdu/Hindi.\\n\\n" + prompt }] }],
+                    generationConfig: { maxOutputTokens: 150 }
+                })
+            });
+            const data = await res.json();
+            if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
+                const ans = data.candidates[0].content.parts[0].text;
+                replyDiv.innerText = ans;
+                statusDiv.innerText = "Listening for commands...";
+                speak(ans);
+                answered = true;
+                break;
+            } else if (data.error) {
+                console.warn(model, data.error.message);
+            }
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
+    if (!answered) {
+        replyDiv.innerText = "Sir, Google server connect karne mein dikkat aayi. Please Reset Key check kijiye.";
         statusDiv.innerText = "Ready";
     }
 }
@@ -70,11 +108,11 @@ if ("webkitSpeechRecognition" in window) {
             askAI(text);
         }
     };
-    recognition.start();
+    try { recognition.start(); } catch(e){}
 }
 
 function toggleListen() {
-    try { recognition.start(); } catch(e) {}
+    try { recognition.start(); } catch(e){}
     statusDiv.innerText = "Listening now, Sir...";
 }
 </script>
