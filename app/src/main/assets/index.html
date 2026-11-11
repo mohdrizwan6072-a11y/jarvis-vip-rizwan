@@ -2,28 +2,28 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JARVIS v2</title>
+<title>JARVIS v2.2</title>
 <style>
 body { background: #020b14; color: #00e5ff; font-family: monospace; text-align: center; margin: 0; padding: 20px; }
-h1 { font-size: 18px; letter-spacing: 2px; text-shadow: 0 0 10px #00e5ff; margin-bottom: 5px; }
+h1 { font-size: 18px; letter-spacing: 2px; text-shadow: 0 0 10px #00e5ff; }
 #circle { width: 130px; height: 130px; border-radius: 50%; border: 3px solid #00e5ff; margin: 25px auto; box-shadow: 0 0 25px #00e5ff; animation: pulse 2s infinite; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; cursor: pointer; }
 @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
 #status { font-size: 13px; margin: 10px; color: #fff; min-height: 25px; }
 #reply { background: rgba(0,229,255,0.08); border: 1px solid #00e5ff; border-radius: 10px; padding: 12px; font-size: 13px; color: #76ff03; max-height: 180px; overflow-y: auto; text-align: left; }
-.btn-reset { margin-top: 15px; background: transparent; border: 1px solid #ff5252; color: #ff5252; padding: 6px 12px; border-radius: 5px; font-size: 12px; cursor: pointer; }
+.btn { margin-top: 15px; background: transparent; border: 1px solid #ff5252; color: #ff5252; padding: 6px 12px; border-radius: 5px; font-size: 12px; cursor: pointer; }
 </style>
 </head>
 <body>
-<h1>⚡ VIP RIZWAN AI (v2.0) ⚡</h1>
+<h1>⚡ VIP RIZWAN AI (v2.2) ⚡</h1>
 <div id="circle" onclick="toggleListen()">JARVIS<br>TAP TO TALK</div>
 <div id="status">System Ready. Tap circle to speak.</div>
-<div id="reply">Jarvis is online and ready, VIP Rizwan Sir.</div>
-<button class="btn-reset" onclick="resetKey()">🔑 Reset API Key</button>
+<div id="reply">Jarvis is online, VIP Rizwan Sir.</div>
+<button class="btn" onclick="resetKey()">🔑 Reset API Key</button>
 
 <script>
 let KEY = localStorage.getItem("jarvis_gemini_key") || "";
 if (!KEY) {
-    KEY = prompt("VIP Rizwan Sir, enter your Gemini API Key:") || "";
+    KEY = prompt("VIP Rizwan Sir, enter Gemini API Key:") || "";
     if (KEY) localStorage.setItem("jarvis_gemini_key", KEY.trim());
 }
 
@@ -32,7 +32,7 @@ function resetKey() {
     if (k) {
         localStorage.setItem("jarvis_gemini_key", k.trim());
         KEY = k.trim();
-        alert("API Key updated successfully!");
+        alert("API Key updated!");
     }
 }
 
@@ -40,23 +40,21 @@ const statusDiv = document.getElementById("status");
 const replyDiv = document.getElementById("reply");
 
 function speak(text) {
-    if (!window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text.replace(/[*#]/g, ''));
-    u.lang = "hi-IN";
-    window.speechSynthesis.speak(u);
+    let clean = text.replace(/[*#]/g, '').trim();
+    if (window.Android && window.Android.speakOut) {
+        window.Android.speakOut(clean);
+    }
 }
 
 const MODELS = ["models/gemini-3.5-flash-lite", "models/gemini-3.8-flash", "models/gemini-2.5-flash"];
 
 async function askAI(prompt) {
     if (!KEY) {
-        replyDiv.innerText = "Error: API Key missing. Please click Reset API Key.";
+        replyDiv.innerText = "API Key missing. Click Reset API Key.";
         return;
     }
     statusDiv.innerText = "JARVIS Thinking...";
 
-    let answered = false;
     for (let model of MODELS) {
         try {
             const url = `https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${KEY}`;
@@ -64,7 +62,7 @@ async function askAI(prompt) {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: "You are JARVIS for VIP Rizwan (Sir). Loyal, witty, brief 1-2 sentence voice reply in Roman Urdu/Hindi.\\n\\n" + prompt }] }],
+                    contents: [{ parts: [{ text: "You are JARVIS for VIP Rizwan (Sir). Loyal, brief 1-2 sentence voice reply in Roman Urdu/Hindi.\\n\\n" + prompt }] }],
                     generationConfig: { maxOutputTokens: 150 }
                 })
             });
@@ -74,20 +72,14 @@ async function askAI(prompt) {
                 replyDiv.innerText = ans;
                 statusDiv.innerText = "Listening for commands...";
                 speak(ans);
-                answered = true;
-                break;
-            } else if (data && data.error) {
-                console.warn(data.error.message);
+                return;
             }
-        } catch(e) {
-            console.error(e);
-        }
+        } catch(e) {}
     }
-
-    if (!answered) {
-        replyDiv.innerText = "Sir, connection mein issue aaya. Please 'Reset API Key' par click karke apni key verify karein.";
-        statusDiv.innerText = "Ready";
-    }
+    let msg = "Sir, connection issue aaya. Please Reset API Key check kijiye.";
+    replyDiv.innerText = msg;
+    speak(msg);
+    statusDiv.innerText = "Ready";
 }
 
 let recognition;
@@ -99,10 +91,8 @@ if ("webkitSpeechRecognition" in window) {
         if (!e || !e.results || e.results.length === 0) return;
         const last = e.results[e.results.length - 1];
         if (!last || last.length === 0 || !last[0] || !last[0].transcript) return;
-        
         const text = last[0].transcript.toLowerCase();
         statusDiv.innerText = "Heard: " + text;
-        
         if (text.includes("youtube") || text.includes("play") || text.includes("gaana")) {
             let q = text.replace("youtube","").replace("play","").replace("gaana","").trim() || "trending songs";
             if (window.Android) { window.Android.openUrl("https://www.youtube.com/results?search_query=" + encodeURIComponent(q)); }
@@ -121,6 +111,10 @@ function toggleListen() {
     try { recognition.start(); } catch(e){}
     statusDiv.innerText = "Listening now, Sir...";
 }
+
+setTimeout(function() {
+    speak("Jarvis is online and ready, VIP Rizwan Sir.");
+}, 1200);
 </script>
 </body>
 </html>

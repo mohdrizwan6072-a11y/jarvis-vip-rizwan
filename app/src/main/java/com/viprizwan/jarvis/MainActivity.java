@@ -6,15 +6,27 @@ import android.webkit.*;
 import android.content.Intent;
 import android.net.Uri;
 import android.content.pm.PackageManager;
+import android.speech.tts.TextToSpeech;
+import java.util.Locale;
 
 public class MainActivity extends Activity {
     private WebView webView;
+    private TextToSpeech tts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         webView = new WebView(this);
         setContentView(webView);
+
+        tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status != TextToSpeech.ERROR) {
+                    tts.setLanguage(new Locale("hi", "IN"));
+                }
+            }
+        });
 
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -36,6 +48,12 @@ public class MainActivity extends Activity {
             public void openUrl(String url) {
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
             }
+            @JavascriptInterface
+            public void speakOut(String text) {
+                if (tts != null) {
+                    tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "jarvis_voice");
+                }
+            }
         }, "Android");
 
         if (checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
@@ -43,5 +61,14 @@ public class MainActivity extends Activity {
         }
 
         webView.loadUrl("file:///android_asset/index.html");
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (tts != null) {
+            tts.stop();
+            tts.shutdown();
+        }
+        super.onDestroy();
     }
 }
