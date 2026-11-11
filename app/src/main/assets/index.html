@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS</title>
+<style>
+body { background: #020b14; color: #00e5ff; font-family: monospace; text-align: center; margin: 0; padding: 20px; }
+h1 { font-size: 22px; letter-spacing: 2px; text-shadow: 0 0 10px #00e5ff; }
+#circle { width: 140px; height: 140px; border-radius: 50%; border: 4px solid #00e5ff; margin: 40px auto; box-shadow: 0 0 30px #00e5ff; animation: pulse 2s infinite; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; cursor: pointer; }
+@keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
+#status { font-size: 15px; margin: 15px; color: #fff; min-height: 40px; }
+#reply { background: rgba(0,229,255,0.1); border: 1px solid #00e5ff; border-radius: 10px; padding: 15px; font-size: 14px; color: #76ff03; max-height: 200px; overflow-y: auto; text-align: left; }
+</style>
+</head>
+<body>
+<h1>⚡ VIP RIZWAN AI ⚡</h1>
+<div id="circle" onclick="toggleListen()">JARVIS<br>TAP TO TALK</div>
+<div id="status">System Online. Tap circle or say "Hey Jarvis"</div>
+<div id="reply">Jarvis is ready, VIP Rizwan Sir.</div>
+
+<script>
+let KEY = localStorage.getItem("jarvis_gemini_key") || ""; if (!KEY) { KEY = prompt("VIP Rizwan Sir, enter Gemini API Key:") || ""; if (KEY) localStorage.setItem("jarvis_gemini_key", KEY.trim()); }
+const statusDiv = document.getElementById("status");
+const replyDiv = document.getElementById("reply");
+
+function speak(text) {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "hi-IN";
+    speechSynthesis.speak(u);
+}
+
+async function askAI(prompt) {
+    statusDiv.innerText = "JARVIS Thinking...";
+    const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + KEY;
+    try {
+        const res = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: "You are JARVIS for VIP Rizwan (Sir). Witty, loyal, tech genius. Speak in Roman Urdu/Hindi. 2 sentences max.\n\n" + prompt }] }]
+            })
+        });
+        const data = await res.json();
+        const ans = data.candidates[0].content.parts[0].text;
+        replyDiv.innerText = ans;
+        statusDiv.innerText = "Listening for commands...";
+        speak(ans);
+    } catch(e) {
+        replyDiv.innerText = "Error: " + e.message;
+        statusDiv.innerText = "Ready";
+    }
+}
+
+let recognition;
+if ("webkitSpeechRecognition" in window) {
+    recognition = new webkitSpeechRecognition();
+    recognition.continuous = true;
+    recognition.lang = "hi-IN";
+    recognition.onresult = function(e) {
+        const text = e.results[e.results.length - 1][0].transcript.toLowerCase();
+        statusDiv.innerText = "Heard: " + text;
+        if (text.includes("youtube") || text.includes("play") || text.includes("gaana")) {
+            let q = text.replace("youtube","").replace("play","").replace("gaana","").trim() || "trending songs";
+            if (window.Android) { window.Android.openUrl("https://www.youtube.com/results?search_query=" + encodeURIComponent(q)); }
+            speak("Playing " + q + " on YouTube Sir");
+        } else if (text.includes("whatsapp")) {
+            if (window.Android) { window.Android.openUrl("whatsapp://"); }
+            speak("Opening WhatsApp Sir");
+        } else {
+            askAI(text);
+        }
+    };
+    recognition.start();
+}
+
+function toggleListen() {
+    try { recognition.start(); } catch(e) {}
+    statusDiv.innerText = "Listening now, Sir...";
+}
+</script>
+</body>
+</html>
