@@ -17,8 +17,6 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        // Screen ko awake rakhna taaki bina touch kiye sunta rahe
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         webView = new WebView(this);
@@ -54,10 +52,10 @@ public class MainActivity extends Activity {
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
             }
             @JavascriptInterface
-            public void speakOut(String text, float pitch, float rate) {
+            public void speakOut(String text, double pitch, double rate) {
                 if (tts != null) {
-                    tts.setPitch(pitch);
-                    tts.setSpeechRate(rate);
+                    tts.setPitch((float) pitch);
+                    tts.setSpeechRate((float) rate);
                     tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "jarvis_voice");
                 }
             }

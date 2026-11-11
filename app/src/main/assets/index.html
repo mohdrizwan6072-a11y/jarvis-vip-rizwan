@@ -2,51 +2,60 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JARVIS v3</title>
+<title>JARVIS v3.1</title>
 <style>
-body { background: #020b14; color: #00e5ff; font-family: monospace; text-align: center; margin: 0; padding: 15px; }
-h1 { font-size: 18px; letter-spacing: 2px; text-shadow: 0 0 10px #00e5ff; margin: 5px 0; }
-#circle { width: 120px; height: 120px; border-radius: 50%; border: 3px solid #00e5ff; margin: 20px auto; box-shadow: 0 0 25px #00e5ff; animation: pulse 2s infinite; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; }
+body { background: #020b14; color: #00e5ff; font-family: monospace; text-align: center; margin: 0; padding: 12px; }
+h1 { font-size: 17px; letter-spacing: 2px; text-shadow: 0 0 10px #00e5ff; margin: 4px 0; }
+#circle { width: 110px; height: 110px; border-radius: 50%; border: 3px solid #00e5ff; margin: 15px auto; box-shadow: 0 0 25px #00e5ff; animation: pulse 2s infinite; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; }
 @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
-#status { font-size: 13px; margin: 8px; color: #fff; min-height: 22px; }
-#reply { background: rgba(0,229,255,0.08); border: 1px solid #00e5ff; border-radius: 8px; padding: 10px; font-size: 13px; color: #76ff03; max-height: 140px; overflow-y: auto; text-align: left; }
-.btn-row { margin-top: 10px; display: flex; justify-content: center; gap: 8px; }
-.btn { background: transparent; border: 1px solid #00e5ff; color: #00e5ff; padding: 6px 10px; border-radius: 5px; font-size: 11px; cursor: pointer; }
-.btn-red { border-color: #ff5252; color: #ff5252; }
-#modal { display: none; background: #071727; border: 2px solid #00e5ff; border-radius: 10px; padding: 15px; margin-top: 15px; text-align: left; font-size: 12px; }
-.slider-row { margin: 8px 0; display: flex; justify-content: space-between; align-items: center; }
-.slider-row input { width: 55%; }
+#status { font-size: 12px; margin: 6px; color: #76ff03; font-weight: bold; min-height: 20px; }
+#reply { background: rgba(0,229,255,0.08); border: 1px solid #00e5ff; border-radius: 8px; padding: 10px; font-size: 13px; color: #fff; max-height: 110px; overflow-y: auto; text-align: left; }
+.box { background: #071727; border: 1px solid #00e5ff; border-radius: 8px; padding: 10px; margin-top: 12px; text-align: left; font-size: 12px; }
+.btn-row { display
+cat << 'EOF' > app/src/main/assets/index.html
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS v3.1</title>
+<style>
+body { background: #020b14; color: #00e5ff; font-family: monospace; text-align: center; margin: 0; padding: 12px; }
+h1 { font-size: 17px; letter-spacing: 2px; text-shadow: 0 0 10px #00e5ff; margin: 4px 0; }
+#circle { width: 110px; height: 110px; border-radius: 50%; border: 3px solid #00e5ff; margin: 15px auto; box-shadow: 0 0 25px #00e5ff; animation: pulse 2s infinite; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; }
+@keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
+#status { font-size: 12px; margin: 6px; color: #76ff03; font-weight: bold; min-height: 20px; }
+#reply { background: rgba(0,229,255,0.08); border: 1px solid #00e5ff; border-radius: 8px; padding: 10px; font-size: 13px; color: #fff; max-height: 110px; overflow-y: auto; text-align: left; }
+.box { background: #071727; border: 1px solid #00e5ff; border-radius: 8px; padding: 10px; margin-top: 12px; text-align: left; font-size: 12px; }
+.btn-row { display: flex; justify-content: space-between; gap: 5px; margin: 8px 0; }
+.btn { flex: 1; background: transparent; border: 1px solid #00e5ff; color: #00e5ff; padding: 6px 2px; border-radius: 5px; font-size: 11px; cursor: pointer; text-align: center; }
+.slider-row { margin: 6px 0; display: flex; justify-content: space-between; align-items: center; }
+.slider-row input { width: 50%; }
 </style>
 </head>
 <body>
-<h1>⚡ VIP RIZWAN AI (v3.0) ⚡</h1>
-<div id="circle" onclick="toggleListen()">JARVIS<br>HANDS-FREE ON</div>
-<div id="status">Listening... Say "Hey Jarvis"</div>
+<h1>⚡ VIP RIZWAN AI (v3.1) ⚡</h1>
+<div id="circle">JARVIS<br>ALWAYS LISTENING</div>
+<div id="status">🟢 Kaan Khule Hain... Boliye!</div>
 <div id="reply">Jarvis is online and listening hands-free, VIP Rizwan Sir.</div>
 
-<div class="btn-row">
-  <button class="btn" onclick="toggleModal()">⚙️ Voice Settings</button>
-  <button class="btn btn-red" onclick="resetKey()">🔑 Key</button>
-</div>
-
-<div id="modal">
-  <b style="color:#fff;">Voice Tuning:</b>
+<div class="box">
+  <b style="color:#00e5ff;">⚙️ Voice Tuning & Persona:</b>
+  <div class="btn-row">
+    <button class="btn" onclick="setPreset(0.7, 0.95, 'jarvis')">🤖 Deep Jarvis</button>
+    <button class="btn" onclick="setPreset(1.35, 1.05, 'mayra')">👩 Mayra</button>
+    <button class="btn" onclick="setPreset(1.0, 1.1, 'smart')">⚡ Smart</button>
+  </div>
   <div class="slider-row">
-    <span>Pitch (Deep/High):</span>
-    <input type="range" id="pRange" min="0.5" max="1.6" step="0.05" onchange="updateVoice()">
+    <span>Pitch (Mota/Patla):</span>
+    <input type="range" id="pRange" min="0.5" max="1.6" step="0.05" oninput="updateSliders()">
   </div>
   <div class="slider-row">
     <span>Speed (Slow/Fast):</span>
-    <input type="range" id="sRange" min="0.7" max="1.5" step="0.05" onchange="updateVoice()">
+    <input type="range" id="sRange" min="0.7" max="1.5" step="0.05" oninput="updateSliders()">
   </div>
-  <div class="btn-row" style="margin-top:8px;">
-    <button class="btn" onclick="setPreset(0.75, 0.95)">🤖 Deep Jarvis</button>
-    <button class="btn" onclick="setPreset(1.35, 1.05)">👩 Mayra</button>
-    <button class="btn" onclick="setPreset(1.0, 1.1)">⚡ Normal</button>
-  </div>
-  <div class="btn-row" style="margin-top:10px;">
-    <button class="btn" onclick="testVoice()" style="background:#00e5ff;color:#000;font-weight:bold;">🔊 Test Sound</button>
-    <button class="btn btn-red" onclick="toggleModal()">Close</button>
+  <div class="btn-row">
+    <button class="btn" onclick="testSound()" style="background:#00e5ff;color:#000;font-weight:bold;">🔊 Test Aawaz</button>
+    <button class="btn" onclick="resetKey()" style="border-color:#ff5252;color:#ff5252;">🔑 Reset Key</button>
   </div>
 </div>
 
@@ -57,44 +66,147 @@ if (!KEY) {
     if (KEY) localStorage.setItem("jarvis_gemini_key", KEY.trim());
 }
 
-let pitch = parseFloat(localStorage.getItem("j_pitch") || "0.8");
+function resetKey() {
+    let k = prompt("Enter new Gemini API Key:", KEY);
+    if (k) { localStorage.setItem("jarvis_gemini_key", k.trim()); KEY = k.trim(); alert("Key Updated!"); }
+}
+
+let pitch = parseFloat(localStorage.getItem("j_pitch") || "0.7");
 let rate = parseFloat(localStorage.getItem("j_rate") || "0.95");
+let persona = localStorage.getItem("j_persona") || "jarvis";
+
 document.getElementById("pRange").value = pitch;
 document.getElementById("sRange").value = rate;
 
-function updateVoice() {
+function updateSliders() {
     pitch = parseFloat(document.getElementById("pRange").value);
     rate = parseFloat(document.getElementById("sRange").value);
     localStorage.setItem("j_pitch", pitch);
     localStorage.setItem("j_rate", rate);
 }
 
-function setPreset(p, r) {
-    pitch = p; rate = r;
+function setPreset(p, r, per) {
+    pitch = p; rate = r; persona = per;
     document.getElementById("pRange").value = p;
     document.getElementById("sRange").value = r;
-    updateVoice();
-    testVoice();
+    updateSliders();
+    localStorage.setItem("j_persona", per);
+    testSound();
 }
 
-function toggleModal() {
-    let m = document.getElementById("modal");
-    m.style.display = m.style.display === "block" ? "none" : "block";
+function speak(text) {
+    let clean = text.replace(/[*#]/g, '').trim();
+    if (window.Android && window.Android.speakOut) {
+        window.Android.speakOut(clean, pitch, rate);
+    }
 }
 
-function resetKey() {
-    let k = prompt("Enter new Gemini API Key:", KEY);
-    if (k) { localStorage.setItem("jarvis_gemini_key", k.trim()); KEY = k.trim(); alert("Updated!"); }
+function testSound() {
+    let msg = persona === "mayra" ? "Rizwan jaan, Mayra ki aawaz ready hai!" : "VIP Rizwan Sir, Jarvis voice updated.";
+    speak(msg);
 }
 
 const statusDiv = document.getElementById("status");
 const replyDiv = document.getElementById("reply");
 
-function speak(text) {
-    let clean = text.replace(/[*#]/g, '').trim();
-    if (window.Android && window.Android.speakOut) {
-        window.Andro
-cat << 'EOF' > app/build.gradle
+const MODELS = ["models/gemini-3.5-flash-lite", "models/gemini-3.8-flash", "models/gemini-2.5-flash"];
+
+async function askAI(prompt) {
+    if (!KEY) { replyDiv.innerText = "API Key missing!"; return; }
+    statusDiv.innerText = "Thinking...";
+
+    let sys = persona === "mayra" ?
+      "You are MAYRA, caring loving girlfriend for Rizwan jaan. Sweet, cute, 1-2 sentence replies in Roman Urdu/Hindi." :
+      "You are JARVIS for VIP Rizwan (Sir). Loyal, witty, brief 1-2 sentence voice reply in Roman Urdu/Hindi.";
+
+    for (let model of MODELS) {
+        try {
+            const url = `https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${KEY}`;
+            const res = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: `${sys}\\n\\nUser: ${prompt}` }] }],
+                    generationConfig: { maxOutputTokens: 150 }
+                })
+            });
+            const data = await res.json();
+            if (data && data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
+                const ans = data.candidates[0].content.parts[0].text;
+                replyDiv.innerText = ans;
+                statusDiv.innerText = "🟢 Kaan Khule Hain... Boliye!";
+                speak(ans);
+                return;
+            }
+        } catch(e) {}
+    }
+    let msg = "Sir, connection issue aaya. Please Key check kijiye.";
+    replyDiv.innerText = msg;
+    speak(msg);
+    statusDiv.innerText = "🟢 Ready";
+}
+
+let recognition;
+let isListening = false;
+
+function startMic() {
+    if (!recognition) return;
+    try {
+        recognition.start();
+        isListening = true;
+        statusDiv.innerText = "🟢 Kaan Khule Hain... Boliye!";
+    } catch(e) {}
+}
+
+if ("webkitSpeechRecognition" in window) {
+    recognition = new webkitSpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.lang = "hi-IN";
+
+    recognition.onresult = function(e) {
+        if (!e || !e.results || e.results.length === 0) return;
+        const last = e.results[e.results.length - 1];
+        if (!last || last.length === 0 || !last[0] || !last[0].transcript) return;
+        const text = last[0].transcript.toLowerCase().trim();
+        statusDiv.innerText = "Heard: " + text;
+
+        if (text.includes("mayra")) {
+            setPreset(1.35, 1.05, "mayra");
+        } else if (text.includes("jarvis")) {
+            setPreset(0.7, 0.95, "jarvis");
+        }
+
+        if (text.includes("youtube") || text.includes("play") || text.includes("gaana")) {
+            let q = text.replace("youtube","").replace("play","").replace("gaana","").trim() || "trending songs";
+            if (window.Android) { window.Android.openUrl("https://www.youtube.com/results?search_query=" + encodeURIComponent(q)); }
+            speak("Playing " + q + " on YouTube");
+        } else if (text.includes("whatsapp")) {
+            if (window.Android) { window.Android.openUrl("whatsapp://"); }
+            speak("Opening WhatsApp");
+        } else {
+            askAI(text);
+        }
+    };
+
+    recognition.onaudiostart = function() { isListening = true; statusDiv.innerText = "🟢 Kaan Khule Hain... Boliye!"; };
+    recognition.onend = function() { isListening = false; setTimeout(startMic, 200); };
+    recognition.onerror = function() { isListening = false; setTimeout(startMic, 500); };
+
+    startMic();
+
+    setInterval(function() {
+        if (!isListening) { startMic(); }
+    }, 2000);
+}
+
+setTimeout(function() {
+    speak("Jarvis and Mayra system online, VIP Rizwan Sir.");
+}, 1200);
+</script>
+</body>
+</html>
+EOcat << 'EOF' > app/build.gradle
 plugins { id "com.android.application" }
 android {
     namespace "com.viprizwan.jarvis"
@@ -103,7 +215,7 @@ android {
         applicationId "com.viprizwan.jarvis"
         minSdk 24
         targetSdk 34
-        versionCode 5
-        versionName "3.0"
+        versionCode 6
+        versionName "3.1"
     }
 }
